@@ -39,7 +39,7 @@ const STEPS: { title: string; body: ReactNode }[] = [
     title: "One click to staging",
     body: (
       <>
-        Promote from the dashboard or run <code className="font-mono text-ink">oche ship</code>. Oche opens the PR, merges it, and Coolify builds staging.
+        Promote from the dashboard. Oche opens the PR, merges it, and Coolify builds staging.
       </>
     ),
   },

@@ -10,6 +10,7 @@ const LINKS = [
   { href: "#ship", label: "Ship" },
   { href: "#deploys", label: "Deploys" },
   { href: "#team", label: "Teams" },
+  { href: "#cli", label: "CLI" },
 ];
 
 export function Nav() {
@@ -45,8 +46,8 @@ export function Nav() {
           <ButtonLink href={APP_URL} variant="ghost" size="sm" className="hidden sm:inline-flex">
             Sign in
           </ButtonLink>
-          <ButtonLink href={APP_URL} size="sm">
-            Open Oche
+          <ButtonLink href="#waitlist" size="sm">
+            Join waitlist
           </ButtonLink>
         </div>
       </nav>

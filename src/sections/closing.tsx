@@ -3,6 +3,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import type { PointerEvent } from "react";
 import { Mark, Wordmark } from "../components/logo.tsx";
 import { Reveal } from "../components/ui.tsx";
+import { WaitlistForm } from "../components/waitlist-form.tsx";
 import { APP_URL } from "../links.ts";
 
 /** The wordmark on a slab that tilts toward the pointer, on a spring. */
@@ -51,7 +52,7 @@ function TiltMark() {
 
 export function Closing() {
   return (
-    <section id="start" className="relative overflow-hidden px-5 pt-20 pb-28 sm:px-8 sm:pb-36">
+    <section id="waitlist" className="relative overflow-hidden px-5 pt-20 pb-28 sm:px-8 sm:pb-36">
       <div className="pointer-events-none absolute inset-x-0 top-1/3 -z-10 mx-auto h-[480px] max-w-4xl rounded-full bg-[radial-gradient(closest-side,rgb(255_106_66/0.12),transparent)] blur-3xl" />
       <Reveal>
         <TiltMark />
@@ -61,15 +62,15 @@ export function Closing() {
           Put every change on the same road.
         </Reveal>
         <Reveal as="p" i={1} className="lede mx-auto mt-5 max-w-lg text-[17px] leading-relaxed text-ink-2">
-          Install the GitHub App, pick your repos, and Oche starts checking every PR against the flow.
+          Oche is invite-only for now. Join the waitlist, and once you're in, your GitHub account can sign in and start guarding repos.
         </Reveal>
-        <Reveal i={2} className="mt-9 flex justify-center">
-          <a
-            href={APP_URL}
-            className="pressable group inline-flex h-12 items-center gap-2 rounded-xl bg-ember px-6 text-[15px] font-medium text-ember-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_0_0_1px_rgb(255_106_66/0.5),0_10px_32px_-8px_rgb(255_106_66/0.65)] hover:brightness-[1.08]"
-          >
-            Open Oche
-            <ArrowRight className="size-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
+        <Reveal i={2} className="mt-9">
+          <WaitlistForm />
+        </Reveal>
+        <Reveal as="p" i={3} className="mt-6 text-[13.5px] text-muted">
+          Already invited?{" "}
+          <a href={APP_URL} className="inline-flex items-center gap-1 text-ink-2 hover:text-ink">
+            Sign in <ArrowRight className="size-3.5" />
           </a>
         </Reveal>
       </div>
@@ -95,8 +96,8 @@ export function Footer() {
           <a href={APP_URL} className="text-muted hover:text-ink">
             Dashboard
           </a>
-          <a href="#ship" className="text-muted hover:text-ink">
-            CLI
+          <a href="#cli" className="text-muted hover:text-ink">
+            CLI <span className="text-faint">(soon)</span>
           </a>
           <a href={APP_URL} className="text-muted hover:text-ink">
             Sign in

@@ -1,9 +1,10 @@
 # oche.io: the landing page, a static build served by nginx.
-# VITE_APP_URL is where "Open Oche" and "Sign in" point (the dashboard).
+# VITE_APP_URL is the dashboard ("Sign in"); VITE_API_URL is the server the waitlist form posts to.
 FROM node:26-alpine AS build
 WORKDIR /app
 ARG VITE_APP_URL=https://ship.oche.io
-ENV VITE_APP_URL=$VITE_APP_URL
+ARG VITE_API_URL=https://deploy.oche.io
+ENV VITE_APP_URL=$VITE_APP_URL VITE_API_URL=$VITE_API_URL
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .

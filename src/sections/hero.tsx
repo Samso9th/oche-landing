@@ -2,7 +2,6 @@ import { ArrowDown, ArrowRight } from "lucide-react";
 import type { CSSProperties } from "react";
 import { HeroCanvas } from "../components/hero-canvas.tsx";
 import { Branch } from "../components/ui.tsx";
-import { APP_URL } from "../links.ts";
 
 const LINES = [["Every", "change", "takes"], ["the", "same", "road"], ["to", "production."]];
 
@@ -39,10 +38,10 @@ export function Hero() {
 
         <div className="hero-in mt-9 flex flex-wrap items-center gap-3" style={{ "--d": "750ms" } as CSSProperties}>
           <a
-            href={APP_URL}
+            href="#waitlist"
             className="pressable group inline-flex h-12 items-center gap-2 rounded-xl bg-ember px-5 text-[15px] font-medium text-ember-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_0_0_1px_rgb(255_106_66/0.5),0_10px_32px_-8px_rgb(255_106_66/0.65)] hover:brightness-[1.08]"
           >
-            Open Oche
+            Join the waitlist
             <ArrowRight className="size-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
           </a>
           <a

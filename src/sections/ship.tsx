@@ -1,4 +1,5 @@
-import { GitBranch, MonitorSmartphone, PauseCircle, RotateCcw, Sparkles } from "lucide-react";
+import clsx from "clsx";
+import { AlertTriangle, Check, GitPullRequest, Loader2, PauseCircle, Rocket, RotateCcw, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Reveal, SectionHead, prefersReducedMotion, useInView } from "../components/ui.tsx";
 
@@ -77,6 +78,7 @@ function Terminal() {
           <span className="size-3 rounded-full bg-[#febc2e]/85" />
           <span className="size-3 rounded-full bg-[#28c840]/85" />
           <span className="ml-3 font-mono text-[11.5px] text-faint">zsh · storefront</span>
+          <span className="ml-2 rounded-full bg-ember-soft px-2 py-0.5 text-[10.5px] font-medium text-ember">preview</span>
           {done && !reduced.current && (
             <button
               onClick={() => setRun((r) => r + 1)}
@@ -123,10 +125,118 @@ function Terminal() {
   );
 }
 
+/* ---------------- the dashboard's Ship dialog, played back ---------------- */
+
+type StepState = "pending" | "running" | "done";
+const PLAN = [
+  { plan: "develop → staging", run: "develop → staging", pr: 213 },
+  { plan: "Wait for staging to deploy and pass its health check", run: "Staging deploys and is healthy", wait: "building (48s)" },
+  { plan: "staging → main", run: "staging → main", pr: 214 },
+  { plan: "Wait for production to deploy and pass its health check", run: "Production deploys and is healthy", wait: "building (31s)" },
+];
+// [ms, step states] — the plan, the press, then each step in turn.
+const FRAMES: [number, StepState[] | "plan" | "press"][] = [
+  [0, "plan"],
+  [1900, "press"],
+  [2300, ["running", "pending", "pending", "pending"]],
+  [3000, ["done", "running", "pending", "pending"]],
+  [4900, ["done", "done", "running", "pending"]],
+  [5500, ["done", "done", "done", "running"]],
+  [7200, ["done", "done", "done", "done"]],
+];
+const LOOP = 10500;
+
+function ShipDialog() {
+  const [ref, inView] = useInView<HTMLDivElement>({ once: false, margin: "0px" });
+  const reduced = prefersReducedMotion();
+  const [frame, setFrame] = useState(reduced ? FRAMES.length - 1 : 0);
+
+  useEffect(() => {
+    if (!inView || reduced) return;
+    let timers: number[] = [];
+    const run = () => {
+      timers = FRAMES.map((f, i) => window.setTimeout(() => setFrame(i), f[0]));
+      timers.push(window.setTimeout(run, LOOP));
+    };
+    run();
+    return () => timers.forEach(clearTimeout);
+  }, [inView, reduced]);
+
+  const f = FRAMES[frame]![1];
+  const planning = f === "plan" || f === "press";
+  const states: StepState[] = planning ? ["pending", "pending", "pending", "pending"] : f;
+  const finished = states.every((s) => s === "done");
+
+  return (
+    <div ref={ref} className="relative">
+      <div className="absolute -inset-16 -z-10 rounded-full bg-[radial-gradient(closest-side,rgb(255_106_66/0.10),transparent)] blur-2xl" />
+      <div className="card rounded-2xl p-5 sm:p-6">
+        <p key={planning ? "a" : finished ? "c" : "b"} className="swap text-[16px] font-semibold tracking-[-0.01em] text-ink">
+          {planning ? "Ship develop to production?" : finished ? "Shipped storefront to production" : "Shipping develop to production"}
+        </p>
+        <p className="mt-1 text-[13.5px] text-muted">Production only moves once staging is deployed and healthy.</p>
+
+        <div className={clsx("grid transition-[grid-template-rows,opacity] duration-500 ease-[var(--ease-out)]", planning ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0")}>
+          <div className="overflow-hidden">
+            <p className="mt-4 flex items-start gap-2 rounded-lg bg-staging/12 px-3 py-2 text-[13px] text-ink-2">
+              <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-staging" />
+              storefront-api in production is missing SENTRY_DSN.
+            </p>
+          </div>
+        </div>
+
+        <ol className="mt-4 space-y-1">
+          {PLAN.map((s, i) => {
+            const st = states[i]!;
+            return (
+              <li key={i} className="flex items-center gap-3 rounded-lg px-2.5 py-2 text-[13.5px] odd:bg-surface-2/50">
+                <span className="grid size-5 shrink-0 place-items-center">
+                  {st === "done" ? (
+                    <Check className="swap size-3.5 text-prod" strokeWidth={3} />
+                  ) : st === "running" ? (
+                    <Loader2 className="spin size-3.5 text-staging" />
+                  ) : (
+                    <span className="size-1.5 rounded-full bg-faint" />
+                  )}
+                </span>
+                <span className={clsx("min-w-0 flex-1 truncate", st === "pending" && !planning ? "text-muted" : "text-ink-2")}>{planning ? s.plan : s.run}</span>
+                {st === "running" && s.wait && <span className="swap font-mono text-[11.5px] text-muted">{s.wait}</span>}
+                {st === "done" && s.pr && <span className="swap font-mono text-[11.5px] text-muted">#{s.pr}</span>}
+              </li>
+            );
+          })}
+        </ol>
+
+        <div className="mt-5 flex items-center justify-end gap-2">
+          {planning ? (
+            <>
+              <span className="rounded-lg px-3 py-1.5 text-[13px] text-muted">Cancel</span>
+              <span
+                className={clsx(
+                  "inline-flex items-center gap-1.5 rounded-lg bg-ember px-3 py-1.5 text-[13px] font-medium text-ember-ink transition-transform duration-150",
+                  f === "press" && "scale-[0.97] brightness-110",
+                )}
+              >
+                <Rocket className="size-3.5" /> Ship anyway
+              </span>
+            </>
+          ) : finished ? (
+            <span className="swap inline-flex items-center gap-1.5 rounded-lg bg-prod/15 px-3 py-1.5 text-[13px] font-medium text-prod">
+              <Check className="size-3.5" strokeWidth={3} /> Deployed and healthy
+            </span>
+          ) : (
+            <span className="rounded-lg px-3 py-1.5 text-[13px] text-muted">Runs on the server. Close this any time.</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const POINTS = [
-  { icon: MonitorSmartphone, text: "Same run from the Ship button in the dashboard, with the plan shown before you confirm." },
-  { icon: PauseCircle, text: "Stops and tells you when a PR is waiting for review. Run it again and finished steps are skipped." },
-  { icon: GitBranch, text: "Starts from the branch you're on and commits everything that changed, after listing the files." },
+  { icon: GitPullRequest, text: "Ship a whole repo, or any open PR into dev: Oche merges it first, then carries on." },
+  { icon: AlertTriangle, text: "Before you confirm, it warns about env vars missing in production and a staging that isn't healthy." },
+  { icon: PauseCircle, text: "Stops and says why when a PR needs review. Ship again and finished steps are skipped." },
 ];
 
 export function Ship() {
@@ -134,9 +244,8 @@ export function Ship() {
     <section id="ship" className="relative mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
       <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
         <div>
-          <SectionHead eyebrow="oche ship" title="One command from your branch to production.">
-            It commits what changed with an AI-written message, pushes, and takes it through dev, staging and main. You confirm once. The run lives on the server, so closing
-            your laptop doesn't stop it.
+          <SectionHead eyebrow="Ship" title="One confirmation from dev to production.">
+            Press Ship and Oche takes it through staging and main, waiting on Coolify between steps. The run lives on the server, so closing the tab doesn't stop it.
           </SectionHead>
           <ul className="mt-10 space-y-4">
             {POINTS.map((p, i) => (
@@ -148,8 +257,33 @@ export function Ship() {
           </ul>
         </div>
         <Reveal i={1}>
+          <ShipDialog />
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/** The CLI isn't published yet: shown as a preview. */
+export function CliSoon() {
+  return (
+    <section id="cli" className="relative mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
+      <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16">
+        <Reveal i={1} className="order-2 lg:order-1">
           <Terminal />
         </Reveal>
+        <div className="order-1 lg:order-2">
+          <Reveal as="p" className="eyebrow flex items-center gap-2">
+            oche CLI <span className="rounded-full bg-ember-soft px-2 py-0.5 font-sans text-[11px] font-medium text-ember">Coming soon</span>
+          </Reveal>
+          <Reveal as="h2" i={1} className="headline sheen mt-4 text-[clamp(34px,5vw,56px)]">
+            The same ship, from your terminal.
+          </Reveal>
+          <Reveal as="p" i={2} className="lede mt-5 text-[17px] leading-relaxed text-ink-2">
+            <code className="font-mono text-[15px] text-ink">oche ship</code> will commit what changed with an AI-written message, push, and take it to production after
+            one confirmation. It isn't published yet.
+          </Reveal>
+        </div>
       </div>
     </section>
   );
