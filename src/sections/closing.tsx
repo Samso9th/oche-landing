@@ -97,7 +97,7 @@ export function Footer() {
             Dashboard
           </a>
           <a href="#cli" className="text-muted hover:text-ink">
-            CLI <span className="text-faint">(soon)</span>
+            CLI
           </a>
           <a href={APP_URL} className="text-muted hover:text-ink">
             Sign in

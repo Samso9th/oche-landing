@@ -78,7 +78,6 @@ function Terminal() {
           <span className="size-3 rounded-full bg-[#febc2e]/85" />
           <span className="size-3 rounded-full bg-[#28c840]/85" />
           <span className="ml-3 font-mono text-[11.5px] text-faint">zsh · storefront</span>
-          <span className="ml-2 rounded-full bg-ember-soft px-2 py-0.5 text-[10.5px] font-medium text-ember">preview</span>
           {done && !reduced.current && (
             <button
               onClick={() => setRun((r) => r + 1)}
@@ -264,8 +263,8 @@ export function Ship() {
   );
 }
 
-/** The CLI isn't published yet: shown as a preview. */
-export function CliSoon() {
+/** The oche CLI, published on npm as oche-cli. */
+export function Cli() {
   return (
     <section id="cli" className="relative mx-auto max-w-6xl px-5 py-24 sm:px-8 sm:py-32">
       <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16">
@@ -274,14 +273,17 @@ export function CliSoon() {
         </Reveal>
         <div className="order-1 lg:order-2">
           <Reveal as="p" className="eyebrow flex items-center gap-2">
-            oche CLI <span className="rounded-full bg-ember-soft px-2 py-0.5 font-sans text-[11px] font-medium text-ember">Coming soon</span>
+            oche CLI
           </Reveal>
           <Reveal as="h2" i={1} className="headline sheen mt-4 text-[clamp(34px,5vw,56px)]">
             The same ship, from your terminal.
           </Reveal>
           <Reveal as="p" i={2} className="lede mt-5 text-[17px] leading-relaxed text-ink-2">
-            <code className="font-mono text-[15px] text-ink">oche ship</code> will commit what changed with an AI-written message, push, and take it to production after
-            one confirmation. It isn't published yet.
+            <code className="font-mono text-[15px] text-ink">oche ship</code> commits what changed with an AI-written message, pushes, and takes it to production after
+            one confirmation.
+          </Reveal>
+          <Reveal as="div" i={3} className="card mt-7 inline-flex items-center gap-3 rounded-xl px-4 py-3 font-mono text-[14px] text-ink">
+            <span className="text-faint">$</span> npm i -g oche-cli
           </Reveal>
         </div>
       </div>

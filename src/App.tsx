@@ -5,7 +5,7 @@ import { Hero } from "./sections/hero.tsx";
 import { Modes } from "./sections/modes.tsx";
 import { Nav } from "./sections/nav.tsx";
 import { Road } from "./sections/road.tsx";
-import { CliSoon, Ship } from "./sections/ship.tsx";
+import { Cli, Ship } from "./sections/ship.tsx";
 import { Team } from "./sections/team.tsx";
 
 export function App() {
@@ -22,7 +22,7 @@ export function App() {
         <Deploys />
         <Modes />
         <Team />
-        <CliSoon />
+        <Cli />
         <Closing />
       </main>
       <Footer />
